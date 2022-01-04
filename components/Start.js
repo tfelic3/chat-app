@@ -13,7 +13,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 export default class Start extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { name: '' };
+		this.state = { name: '', color: '' };
 	}
 	render() {
 		return (
@@ -56,19 +56,29 @@ export default class Start extends React.Component {
 						</Text>
 
 						<View style={styles.colorSelection}>
-							<TouchableOpacity style={styles.highLight1}>
+							<TouchableOpacity
+								style={styles.highLight1}
+								onPress={() => this.setState({ color: 'rgb(0,0,0)' })}
+							>
 								<View></View>
 							</TouchableOpacity>
 
-							<TouchableOpacity style={styles.highLight2}>
+							<TouchableOpacity
+								style={styles.highLight2}
+								onPress={() => this.setState({ color: 'rgb(63, 56, 75)' })}
+							>
 								<View></View>
 							</TouchableOpacity>
 
-							<TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => this.setState({ color: 'rgb(125,138,154)' })}
+							>
 								<View style={styles.highLight3}></View>
 							</TouchableOpacity>
 
-							<TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => this.setState({ color: 'rgb(175, 190, 166)' })}
+							>
 								<View style={styles.highLight4}></View>
 							</TouchableOpacity>
 						</View>
@@ -77,6 +87,7 @@ export default class Start extends React.Component {
 							onPress={() =>
 								this.props.navigation.navigate('Chat', {
 									name: this.state.name,
+									color: this.state.color,
 								})
 							}
 							underlayColor="rgb(64,93,230)"
