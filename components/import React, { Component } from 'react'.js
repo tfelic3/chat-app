@@ -34,16 +34,23 @@ export default class Chat extends React.Component {
 
 			this.setState({
 				uid: user.uid,
+				loggedInText: 'Hello there!',
 				messages: [
 					{
 						_id: 1,
-						text: 'Hello developer',
+						text: 'Hello Developer',
 						createdAt: new Date(),
 						user: {
 							_id: 2,
 							name: 'React Native',
 							avatar: 'https://placeimg.com/140/140/any',
 						},
+					},
+					{
+						_id: 2,
+						text: 'Welcome to the chat, ' + this.props.route.params.name + '!',
+						createdAt: new Date(),
+						system: true,
 					},
 				],
 			});
@@ -57,6 +64,8 @@ export default class Chat extends React.Component {
 				this.onCollectionUpdate
 			);
 		});
+
+		this.referenceMessages = firebase.firestore().collection('messages');
 
 		this.setState({
 			messages: [
@@ -75,14 +84,13 @@ export default class Chat extends React.Component {
 
 	componentWillUnmount() {
 		this.authUnsubscribe();
-		this.unsubscribeMessageUser();
 		this.unsubscribe();
 	}
 
 	get user() {
 		return {
 			name: this.props.route.params.name,
-			_id: this.state._id,
+			_id: this.state.uid,
 			id: this.state.uid,
 		};
 	}
@@ -95,12 +103,15 @@ export default class Chat extends React.Component {
 			var data = doc.data();
 			messages.push({
 				_id: data.id,
-				text: data.text || '',
-				createdAt: data.createdAt.toDate(),
+				text: data.text,
+				createdAt: new Date(),
 				user: {
 					user: data.user,
 				},
 			});
+		});
+		this.setState({
+			messages,
 		});
 	};
 
@@ -151,7 +162,7 @@ export default class Chat extends React.Component {
 					renderBubble={this.renderBubble.bind(this)}
 					messages={this.state.messages}
 					onSend={(messages) => this.onSend(messages)}
-					user={{ _id: 1 }}
+					user={this.state.user}
 				/>
 
 				{Platform.OS === 'android' ? (
