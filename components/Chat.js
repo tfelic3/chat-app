@@ -1,8 +1,18 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component } from 'react';
 import { View, Text, Platform, KeyboardAvoidingView } from 'react-native';
-import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import {
+	GiftedChat,
+	Bubble,
+	InputToolbar,
+	renderActions,
+} from 'react-native-gifted-chat';
+import CustomActions from './CustomActions';
+import { MapView } from 'react-native-maps';
+
 import NetInfo from '@react-native-community/netinfo';
+import * as Speech from 'expo-speech';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -12,12 +22,12 @@ export default class Chat extends React.Component {
 		super();
 
 		const firebaseConfig = {
-			apiKey: 'AIzaSyAkzOxFYnQM5oUTB-aBm_NQdHmmw9JKAWs',
-			authDomain: 'test-af2eb.firebaseapp.com',
-			projectId: 'test-af2eb',
-			storageBucket: 'test-af2eb.appspot.com',
-			messagingSenderId: '576102253398',
-			appId: '1:576102253398:web:0f77bd9e9d477569f70cf7',
+			apiKey: 'AIzaSyAZvXIqgta_v5eXFRKnR1pjoIYRi4IGqb8',
+			authDomain: 'test-9955f.firebaseapp.com',
+			projectId: 'test-9955f',
+			storageBucket: 'test-9955f.appspot.com',
+			messagingSenderId: '416915161341',
+			appId: '1:416915161341:web:9b106453243d65f4ddfe94',
 		};
 
 		if (!firebase.apps.length) {
@@ -26,7 +36,12 @@ export default class Chat extends React.Component {
 
 		this.referenceMessages = firebase.firestore().collection('messages');
 
-		this.state = { messages: [], LoggedInText: 'Not logged in', uid: 0 };
+		this.state = {
+			messages: [],
+			LoggedInText: 'Not logged in',
+			uid: 0,
+			image: null,
+		};
 	}
 
 	async getMessages() {
@@ -91,7 +106,6 @@ export default class Chat extends React.Component {
 	componentWillUnmount() {
 		this.authUnsubscribe();
 		this.unsubscribeMessageUser();
-		this.unsubscribe();
 	}
 
 	get user() {
@@ -114,30 +128,51 @@ export default class Chat extends React.Component {
 				createdAt: data.createdAt.toDate(),
 				user: {
 					user: data.user,
+					name: data.user.name,
 				},
+				location: data.location || null,
+				image: data.image || '',
 			});
 		});
 	};
 
-	renderInputToolbar = (props) => {
-		if (this.state.isConnected === false) {
-		  return <InputToolbar {...props} />;
-		}
-	  };
-	
+	renderCustomActions = (props) => {
+		return <CustomActions {...props} />;
+	};
 
-	renderBubble(props) {
+	renderBubble = (props) => {
 		return (
 			<Bubble
 				{...props}
 				wrapperStyle={{
 					right: {
-						backgroundColor: '#000',
+						backgroundColor: '#123458',
+					},
+					left: {
+						backgroundColor: '#6495ED',
 					},
 				}}
 			/>
 		);
-	}
+	};
+
+	renderCustomView = (props) => {
+		const { currentMessage } = props;
+		if (currentMessage.location) {
+			return (
+				<MapView
+					style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+					region={{
+						latitude: currentMessage.location.latitude,
+						longitude: currentMessage.location.longitude,
+						latitudeDelta: 0.0922,
+						longitudeDelta: 0.0421,
+					}}
+				/>
+			);
+		}
+		return null;
+	};
 
 	addMessage = () => {
 		this.referenceMessages.add({
@@ -145,6 +180,9 @@ export default class Chat extends React.Component {
 			text: this.state.messages[0].text,
 			createdAt: this.state.messages[0].createdAt,
 			user: this.state.messages[0].user,
+			image: this.state.image || null,
+			location: this.state.messages[0].location || null,
+
 			uid: this.state.uid,
 		});
 	};
@@ -193,8 +231,9 @@ export default class Chat extends React.Component {
 			<View style={{ height: '100%', width: '100%', backgroundColor: color }}>
 				<Text>{this.state.isLoggedIn}</Text>
 				<GiftedChat
-					renderBubble={this.renderBubble.bind(this)}
-					renderInputToolbar={this.renderInputToolbar}
+					renderBubble={this.renderBubble}
+					renderActions={this.renderCustomActions}
+					renderCustomView={this.renderCustomView}
 					messages={this.state.messages}
 					onSend={(messages) => this.onSend(messages)}
 					user={{ _id: 1 }}
