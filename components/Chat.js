@@ -1,19 +1,10 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component } from 'react';
 import { View, Text, Platform, KeyboardAvoidingView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import {
-	GiftedChat,
-	Bubble,
-	InputToolbar,
-	renderActions,
-} from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
+import NetInfo from '@react-native-community/netinfo';
 import CustomActions from './CustomActions';
 import { MapView } from 'react-native-maps';
-
-import NetInfo from '@react-native-community/netinfo';
-import * as Speech from 'expo-speech';
-
 const firebase = require('firebase');
 require('firebase/firestore');
 
@@ -36,12 +27,7 @@ export default class Chat extends React.Component {
 
 		this.referenceMessages = firebase.firestore().collection('messages');
 
-		this.state = {
-			messages: [],
-			LoggedInText: 'Not logged in',
-			uid: 0,
-			image: null,
-		};
+		this.state = { messages: [], LoggedInText: 'Not logged in', uid: 0 };
 	}
 
 	async getMessages() {
@@ -106,6 +92,7 @@ export default class Chat extends React.Component {
 	componentWillUnmount() {
 		this.authUnsubscribe();
 		this.unsubscribeMessageUser();
+		this.unsubscribe();
 	}
 
 	get user() {
@@ -126,12 +113,11 @@ export default class Chat extends React.Component {
 				_id: data.id,
 				text: data.text || '',
 				createdAt: data.createdAt.toDate(),
+				image: data.image || '',
+				location: data.location || null,
 				user: {
 					user: data.user,
-					name: data.user.name,
 				},
-				location: data.location || null,
-				image: data.image || '',
 			});
 		});
 	};
@@ -140,39 +126,18 @@ export default class Chat extends React.Component {
 		return <CustomActions {...props} />;
 	};
 
-	renderBubble = (props) => {
+	renderBubble(props) {
 		return (
 			<Bubble
 				{...props}
 				wrapperStyle={{
 					right: {
-						backgroundColor: '#123458',
-					},
-					left: {
-						backgroundColor: '#6495ED',
+						backgroundColor: '#000',
 					},
 				}}
 			/>
 		);
-	};
-
-	renderCustomView = (props) => {
-		const { currentMessage } = props;
-		if (currentMessage.location) {
-			return (
-				<MapView
-					style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
-					region={{
-						latitude: currentMessage.location.latitude,
-						longitude: currentMessage.location.longitude,
-						latitudeDelta: 0.0922,
-						longitudeDelta: 0.0421,
-					}}
-				/>
-			);
-		}
-		return null;
-	};
+	}
 
 	addMessage = () => {
 		this.referenceMessages.add({
@@ -180,10 +145,9 @@ export default class Chat extends React.Component {
 			text: this.state.messages[0].text,
 			createdAt: this.state.messages[0].createdAt,
 			user: this.state.messages[0].user,
-			image: this.state.image || null,
-			location: this.state.messages[0].location || null,
-
 			uid: this.state.uid,
+			image: this.state.messages[0].image || '',
+			location: this.state.messages[0].location || null,
 		});
 	};
 
@@ -221,6 +185,24 @@ export default class Chat extends React.Component {
 		);
 	}
 
+	renderCustomView(props) {
+		const { currentMessage } = props;
+		if (currentMessage.location) {
+			return (
+				<MapView
+					style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+					region={{
+						latitude: currentMessage.location.latitude,
+						longitude: currentMessage.location.longitude,
+						latitudeDelta: 0.0922,
+						longitudeDelta: 0.0421,
+					}}
+				/>
+			);
+		}
+		return null;
+	}
+
 	render() {
 		let name = this.props.route.params.name;
 		let color = this.props.route.params.color;
@@ -231,10 +213,10 @@ export default class Chat extends React.Component {
 			<View style={{ height: '100%', width: '100%', backgroundColor: color }}>
 				<Text>{this.state.isLoggedIn}</Text>
 				<GiftedChat
-					renderBubble={this.renderBubble}
+					renderBubble={this.renderBubble.bind(this)}
 					renderActions={this.renderCustomActions}
-					renderCustomView={this.renderCustomView}
 					messages={this.state.messages}
+					renderCustomView={this.renderCustomView}
 					onSend={(messages) => this.onSend(messages)}
 					user={{ _id: 1 }}
 				/>

@@ -7,7 +7,9 @@ import * as Location from 'expo-location';
 import * as MediaLibrary from 'expo-media-library';
 import MapView from 'react-native-maps';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+
 import firebase from 'firebase';
+import 'firebase/firestore';
 
 export default class CustomActions extends React.Component {
 	constructor(props) {
@@ -22,10 +24,7 @@ export default class CustomActions extends React.Component {
 		console.log(status);
 
 		let result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.All,
-			allowsEditing: false,
-			aspect: [4, 3],
-			quality: 1,
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
 		}).catch((error) => console.log(error));
 
 		if (!result.cancelled) {
@@ -91,7 +90,7 @@ export default class CustomActions extends React.Component {
 		let uriParts = uri.split('/');
 		let imageName = uriParts[uriParts.length - 1];
 
-		const ref = firebase.storage().ref().child(`${imageName}`);
+		const ref = firebase.storage().ref().child(`image/${imageName}`);
 		const snapshot = await ref.put(blob);
 		blob.close();
 		const imageUrl = await snapshot.ref.getDownloadURL();
