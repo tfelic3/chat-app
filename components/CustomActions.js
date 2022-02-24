@@ -22,10 +22,11 @@ export default class CustomActions extends React.Component {
 		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
 		console.log(status);
-
+try{
 		let result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-		}).catch((error) => console.log(error));
+		}) }
+		catch(error){console.log(error)} ;
 
 		if (!result.cancelled) {
 			const imageUrl = this.uploadImage(result.uri);
