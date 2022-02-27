@@ -1,4 +1,32 @@
-import AsyncStorage from '@react-native-community/async-storage';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Chat.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Chat.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component } from 'react';
 import { View, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
@@ -7,6 +35,8 @@ import CustomActions from './CustomActions';
 import { MapView } from 'react-native-maps';
 const firebase = require('firebase');
 require('firebase/firestore');
+
+
 
 export default class Chat extends React.Component {
 	constructor() {
@@ -21,22 +51,17 @@ export default class Chat extends React.Component {
 			appId: '1:416915161341:web:9b106453243d65f4ddfe94',
 		};
 
-		//connects to firebase
 		if (!firebase.apps.length) {
 			firebase.initializeApp(firebaseConfig);
 		}
-		//reference to message collection
+
 		this.referenceMessages = firebase.firestore().collection('messages');
-		//reference to messages and log in text
+
 		this.state = { messages: [], LoggedInText: 'Not logged in', uid: 0 };
 	}
 
 	/**
-	 * loads all messages from AsyncStorage database
-	 * @async
-	 * @function getMessages
-	 * @param {string} messages
-	 * @return {state} messages
+	 * 
 	 */
 
 	async getMessages() {
@@ -52,7 +77,7 @@ export default class Chat extends React.Component {
 	}
 
 	componentDidMount() {
-		//Checks to see if user is off or online
+		//Check to see if user is off or online
 		NetInfo.fetch().then((connection) => {
 			if (connection.isConnected) {
 				console.log('online');
@@ -61,7 +86,6 @@ export default class Chat extends React.Component {
 			}
 		});
 
-		// Authenticates the user, sets state to get past messages
 		this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
 			if (!user) {
 				await firebase.auth().signInAnonymously();
@@ -105,10 +129,6 @@ export default class Chat extends React.Component {
 		this.unsubscribe();
 	}
 
-	/**
-	 * Function that gets user information
-	 * @return {User}
-	 */
 	get user() {
 		return {
 			name: this.props.route.params.name,
@@ -137,12 +157,12 @@ export default class Chat extends React.Component {
 	};
 
 	renderCustomActions = (props) => {
-		return <CustomActions {...props} />;
+		return &lt;CustomActions {...props} />;
 	};
 
 	renderBubble(props) {
 		return (
-			<Bubble
+			&lt;Bubble
 				{...props}
 				wrapperStyle={{
 					right: {
@@ -152,17 +172,6 @@ export default class Chat extends React.Component {
 			/>
 		);
 	}
-
-	/**
-	 * Pushes messages to the Firestore database
-	 * @function addMessages
-	 * @param {string} _id  messages id
-	 * @param {string} _text message text
-	 * @param {string}_createdAt message's date and time
-	 * @param {string}_user user who sends message
-	 * @param {string}_image image from image if sent
-	
-	 */
 
 	addMessage = () => {
 		this.referenceMessages.add({
@@ -176,13 +185,6 @@ export default class Chat extends React.Component {
 		});
 	};
 
-	/**
-	 * Saves messages to AsyncStorage database
-	 * @async
-	 * @function saveMessages
-	 * @param {string} messages
-	 * @return {AsyncStorage}
-	 */
 	async saveMessages() {
 		try {
 			await AsyncStorage.setItem(
@@ -194,14 +196,6 @@ export default class Chat extends React.Component {
 		}
 	}
 
-	/**
-	 * Delete messages from AsyncStorage database
-	 * @async
-	 * @function deleteMessages
-	 * @param {string} messages
-	 * @return {AsyncStorage}
-	 
-	 */
 	async deleteMessages() {
 		try {
 			await AsyncStorage.removeItem('messages');
@@ -212,14 +206,6 @@ export default class Chat extends React.Component {
 			console.log(error.message);
 		}
 	}
-
-	/**
-	 * Sends messages
-	 * @async
-	 * @function onSend
-	 * @param {string} messages
-	 * @return {state} GiftedChat
-	 */
 
 	onSend(messages = []) {
 		this.setState(
@@ -233,18 +219,11 @@ export default class Chat extends React.Component {
 		);
 	}
 
-	/**
-	 * if message has location coordinates then the MapView is shown
-	 * @function renderCustomView
-	 * @param {*} props
-	 * @returns {MapView}
-	 */
-
 	renderCustomView(props) {
 		const { currentMessage } = props;
 		if (currentMessage.location) {
 			return (
-				<MapView
+				&lt;MapView
 					style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
 					region={{
 						latitude: currentMessage.location.latitude,
@@ -259,16 +238,15 @@ export default class Chat extends React.Component {
 	}
 
 	render() {
-		//Selects the user name and background color
 		let name = this.props.route.params.name;
 		let color = this.props.route.params.color;
 
 		this.props.navigation.setOptions({ title: name });
 
 		return (
-			<View style={{ height: '100%', width: '100%', backgroundColor: color }}>
-				<Text>{this.state.isLoggedIn}</Text>
-				<GiftedChat
+			&lt;View style={{ height: '100%', width: '100%', backgroundColor: color }}>
+				&lt;Text>{this.state.isLoggedIn}&lt;/Text>
+				&lt;GiftedChat
 					renderBubble={this.renderBubble.bind(this)}
 					renderActions={this.renderCustomActions}
 					messages={this.state.messages}
@@ -278,9 +256,32 @@ export default class Chat extends React.Component {
 				/>
 
 				{Platform.OS === 'android' ? (
-					<KeyboardAvoidingView behavior="height" />
+					&lt;KeyboardAvoidingView behavior="height" />
 				) : null}
-			</View>
+			&lt;/View>
 		);
 	}
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#getMessages">getMessages</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun Feb 27 2022 00:20:39 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
